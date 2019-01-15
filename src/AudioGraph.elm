@@ -36,6 +36,8 @@ module AudioGraph exposing
 -}
 
 import AudioGraph.NodeID as NodeID exposing (NodeID)
+import AudioGraph.Units exposing (..)
+
 import Dict exposing (Dict)
 import Json.Encode
 
@@ -110,9 +112,9 @@ type NodeType
 
 {-| -}
 type Param
-    = Value Float -- Represents any arbitrary control value
-    | Note Int -- MIDI note number
-    | Frequency Float -- Frequency in Hz
+    = Value KValue -- Represents any arbitrary control value
+    | Note MIDI -- MIDI note number
+    | Frequency Hertz -- Frequency in Hz
     | Waveform String -- Oscillator waveform. Is be an arbitrary string.
 
 
