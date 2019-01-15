@@ -3,11 +3,20 @@ module AudioGraph.Encode exposing (
     encodeNode
   )
 
+{-|
+
+@docs encodeAudioGraph, encodeNode
+
+-}
+
 import AudioGraph exposing ( AudioGraph (..), Connection, Node (..), NodeType (..), Param (..) )
 import AudioGraph.NodeID as NodeID exposing (NodeID)
 
 import Json.Encode as Encode
 
+
+{-|
+-}
 encodeAudioGraph : AudioGraph -> Encode.Value
 encodeAudioGraph graph =
   case graph of
@@ -17,6 +26,9 @@ encodeAudioGraph graph =
         ( "connections", Encode.list encodeConnection g.connections )
       ]
 
+
+{-|
+-}
 encodeConnection : AudioGraph.Connection -> Encode.Value
 encodeConnection (o, i, p) =
   Encode.object [
@@ -26,16 +38,21 @@ encodeConnection (o, i, p) =
   ]
 
 
+{-|
+-}
 encodeNode : Node -> Encode.Value
 encodeNode node =
   case node of
     Node a ->
       Encode.object [
         ( "id", Encode.string <| NodeID.toString a.id ),
-        ( "type", encodeNodeType a.type_ ),
+        ( "type", encodeNodeType a.nodeType ),
         ( "params", Encode.dict identity encodeParam a.params )
       ]
 
+
+{-|
+-}
 encodeNodeType : NodeType -> Encode.Value
 encodeNodeType nodeType =
   case nodeType of
@@ -48,6 +65,9 @@ encodeNodeType nodeType =
     Custom s ->
       Encode.string s
 
+
+{-|
+-}
 encodeParam : Param -> Encode.Value
 encodeParam param =
     case param of

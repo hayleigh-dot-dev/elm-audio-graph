@@ -1,8 +1,18 @@
 module AudioGraph.Utils exposing (ftom, ftom_, mtof, mtof_)
 
+{-|
+
+@docs mtof, ftom
+
+@docs mtof_, ftom_
+
+-}
+
 import AudioGraph exposing (Param(..))
 
 
+{-|
+-}
 mtof : Param -> Param
 mtof param =
     case param of
@@ -17,6 +27,8 @@ mtof param =
             param
 
 
+{-|
+-}
 ftom : Param -> Param
 ftom param =
     case param of
@@ -27,6 +39,8 @@ ftom param =
             param
 
 
+{-|
+-}
 mtof_ : Int -> Float
 mtof_ m =
     if m <= 0 || m < 128 then
@@ -36,6 +50,8 @@ mtof_ m =
         0
 
 
+{-|
+-}
 ftom_ : Float -> Int
 ftom_ f =
     f

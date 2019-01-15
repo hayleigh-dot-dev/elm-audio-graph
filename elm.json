@@ -5,7 +5,10 @@
   "license": "MIT",
   "version": "0.0.1",
   "exposed-modules": [
-      "AudioGraph"
+      "AudioGraph",
+      "AudioGraph.Encode",
+      "AudioGraph.NodeID",
+      "AudioGraph.Utils"
   ],
   "elm-version": "0.19.0 <= v < 0.20.0",
   "dependencies": {
