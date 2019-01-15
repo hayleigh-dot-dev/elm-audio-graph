@@ -3,8 +3,7 @@ module AudioGraph exposing
     , Node(..), NodeType(..), Param(..), Connection
     , addNode, getNode, removeNode, addConnection, removeConnection
     , createOscillatorNode, createGainNode, createCustomNode
-    , getNodeID, getNodeParam, setNodeParam
-    , getNodeType
+    , getNodeID, getNodeType, getNodeParam, setNodeParam
     )
 
 {-| Info about the library.
@@ -76,7 +75,8 @@ emptyAudioGraph =
     AudioGraph
         { nodes =
             Dict.fromList
-                [ ( NodeID.toString <| getNodeID desintationNode, desintationNode ) ]
+                [ ( NodeID.toString <| getNodeID desintationNode, desintationNode )
+                ]
         , connections = []
         }
 
@@ -88,7 +88,13 @@ emptyAudioGraph =
 {-| `Node` represents a generic audio node.
 -}
 type Node
-    = Node { id : NodeID, type_ : NodeType, params : Dict String Param }
+    = Node
+        { id : NodeID
+        , nodeType : NodeType
+        , numInputs : Int
+        , numOutputs : Int
+        , params : Dict String Param
+        }
 
 
 {-| Based on a Nodes params, we can give it a type. This package has built
@@ -104,10 +110,11 @@ type NodeType
 
 {-| -}
 type Param
-    = Value Float       -- Represents any arbitrary control value
-    | Note Int          -- MIDI note number
-    | Frequency Float   -- Frequency in Hz
-    | Waveform String   -- Oscillator waveform. Is be an arbitrary string.
+    = Value Float -- Represents any arbitrary control value
+    | Note Int -- MIDI note number
+    | Frequency Float -- Frequency in Hz
+    | Waveform String -- Oscillator waveform. Is be an arbitrary string.
+
 
 {-| -}
 type alias Connection =
@@ -170,7 +177,13 @@ removeConnection connection graph =
 
 desintationNode : Node
 desintationNode =
-    Node { id = NodeID.fromString "_output", type_ = Output, params = Dict.empty }
+    Node
+        { id = NodeID.fromString "_output"
+        , nodeType = Output
+        , numInputs = 2
+        , numOutputs = 0
+        , params = Dict.empty
+        }
 
 
 {-| -}
@@ -178,7 +191,9 @@ createOscillatorNode : NodeID -> Node
 createOscillatorNode id =
     Node
         { id = id
-        , type_ = Oscillator
+        , nodeType = Oscillator
+        , numInputs = 0
+        , numOutputs = 1
         , params =
             Dict.fromList
                 [ ( "detune", Value 0.0 )
@@ -193,10 +208,13 @@ createGainNode : NodeID -> Node
 createGainNode id =
     Node
         { id = id
-        , type_ = Gain
+        , nodeType = Gain
+        , numInputs = 0
+        , numOutputs = 1
         , params =
             Dict.fromList
-                [ ( "gain", Value 1.0 ) ]
+                [ ( "gain", Value 1.0 )
+                ]
         }
 
 
@@ -207,18 +225,25 @@ node.
 
 You can then partially apply `createCustomNode` to create your own node generators:
 
+
     createMyAwesomeNode : NodeID -> Node
     createMyAwesomeNode id =
-        createCustomNode 
+        createCustomNode
             "MyAwesomeNode"
+            0
+            1
             (Dict.fromList [ ( "awesomeness", Value 100.0 ) ])
+            id
+
 
 -}
-createCustomNode : String -> Dict String Param -> NodeID -> Node
-createCustomNode type_ params id =
+createCustomNode : String -> Int -> Int -> Dict String Param -> NodeID -> Node
+createCustomNode nodeType inputs outputs params id =
     Node
         { id = id
-        , type_ = Custom type_
+        , nodeType = Custom nodeType
+        , numInputs = inputs
+        , numOutputs = outputs
         , params = params
         }
 
@@ -240,7 +265,7 @@ getNodeType : Node -> NodeType
 getNodeType node =
     case node of
         Node a ->
-            a.type_
+            a.nodeType
 
 
 {-| -}
