@@ -1,0 +1,159 @@
+[
+  {
+    "name": "AudioGraph",
+    "comment": " Info about the library.\n\n\n# Definition\n\n@docs AudioGraph, emptyAudioGraph\n\n\n# Types\n\n@docs Node, NodeType, Param\n\n\n# Graph Manipulations\n\n@docs addNode, getNode, removeNode, addConnection, removeConnection\n\n\n# Node Constructors\n\n@docs createOscillatorNode, createGainNode, createCustomNode\n\n\n# Node Methods\n\n@docs getNodeID, getNodeType, getNodeParam, setNodeParam\n\n",
+    "unions": [
+      {
+        "name": "AudioGraph",
+        "comment": " An `AudioGraph` represents the structure of a Web Audio processing\ngraph. It is very similar to the Graph Object Model available in the\n[Soundstage][https://github.com/soundio/soundstage] javascript package.\n\nA dictionary of [`Node`](#Node)s stores all the currently registered graph\nnodes (more on those later), and a separate list tracks how Nodes are connected\nto one another.\n\nTypically you won't need to create more than one AudioGraph.\n\n",
+        "args": [],
+        "cases": [
+          [
+            "AudioGraph",
+            [
+              "{ nodes : Dict.Dict String.String AudioGraph.Node, connections : List.List AudioGraph.Connection }"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Node",
+        "comment": " `Node` represents a generic audio node.\n",
+        "args": [],
+        "cases": [
+          [
+            "Node",
+            [
+              "{ id : AudioGraph.NodeID.NodeID, type_ : AudioGraph.NodeType, params : Dict.Dict String.String AudioGraph.Param }"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "NodeType",
+        "comment": " Based on a Nodes params, we can give it a type. This package has built\nin types for the most common Web Audio nodes, but the `Custom` type allows\nyou to [build your own nodes](#createCustomNode).\n",
+        "args": [],
+        "cases": [
+          [
+            "Output",
+            []
+          ],
+          [
+            "Oscillator",
+            []
+          ],
+          [
+            "Gain",
+            []
+          ],
+          [
+            "Custom",
+            [
+              "String.String"
+            ]
+          ]
+        ]
+      },
+      {
+        "name": "Param",
+        "comment": " ",
+        "args": [],
+        "cases": [
+          [
+            "Value",
+            [
+              "Basics.Float"
+            ]
+          ],
+          [
+            "Note",
+            [
+              "Basics.Int"
+            ]
+          ],
+          [
+            "Frequency",
+            [
+              "Basics.Float"
+            ]
+          ],
+          [
+            "Waveform",
+            [
+              "String.String"
+            ]
+          ]
+        ]
+      }
+    ],
+    "aliases": [],
+    "values": [
+      {
+        "name": "addConnection",
+        "comment": " ",
+        "type": "Maybe.Maybe AudioGraph.Node -> Maybe.Maybe AudioGraph.Node -> String.String -> AudioGraph.AudioGraph -> AudioGraph.AudioGraph"
+      },
+      {
+        "name": "addNode",
+        "comment": " ",
+        "type": "AudioGraph.Node -> AudioGraph.AudioGraph -> AudioGraph.AudioGraph"
+      },
+      {
+        "name": "createCustomNode",
+        "comment": " You can create your own custom nodes with `createCustomNode` by simply\nproviding a String to name your new node type, and a dictionary of its default\nparameters. Finally, passing a NodeID as usual will construct the new custom\nnode.\n\nYou can then partially apply `createCustomNode` to create your own node generators:\n\n    createMyAwesomeNode : NodeID -> Node\n    createMyAwesomeNode id =\n        createCustomNode \"MyAwesomeNode\"\n            Dict.fromList\n            [ ( \"awesomeness\", Value 100.0 ) ]\n\n",
+        "type": "String.String -> Dict.Dict String.String AudioGraph.Param -> AudioGraph.NodeID.NodeID -> AudioGraph.Node"
+      },
+      {
+        "name": "createGainNode",
+        "comment": " ",
+        "type": "AudioGraph.NodeID.NodeID -> AudioGraph.Node"
+      },
+      {
+        "name": "createOscillatorNode",
+        "comment": " ",
+        "type": "AudioGraph.NodeID.NodeID -> AudioGraph.Node"
+      },
+      {
+        "name": "emptyAudioGraph",
+        "comment": " To construct an Audio Graph, start with the `emptyAudioGraph` which has no\ntracked connections and a singular `Output` node. The Output node represents\nthe Web Audio context _destination_ and has a pre-defined `NodeID` of \"\\_output\".\n\n    type alias Model =\n        AudioGraph\n\n    init : Model\n    init =\n        emptyAudioGraph\n\n",
+        "type": "AudioGraph.AudioGraph"
+      },
+      {
+        "name": "getNode",
+        "comment": " ",
+        "type": "AudioGraph.AudioGraph -> AudioGraph.NodeID.NodeID -> Maybe.Maybe AudioGraph.Node"
+      },
+      {
+        "name": "getNodeID",
+        "comment": " ",
+        "type": "AudioGraph.Node -> AudioGraph.NodeID.NodeID"
+      },
+      {
+        "name": "getNodeParam",
+        "comment": " ",
+        "type": "String.String -> AudioGraph.Node -> Maybe.Maybe AudioGraph.Param"
+      },
+      {
+        "name": "getNodeType",
+        "comment": " ",
+        "type": "AudioGraph.Node -> AudioGraph.NodeType"
+      },
+      {
+        "name": "removeConnection",
+        "comment": " ",
+        "type": "AudioGraph.Connection -> AudioGraph.AudioGraph -> AudioGraph.AudioGraph"
+      },
+      {
+        "name": "removeNode",
+        "comment": " ",
+        "type": "AudioGraph.AudioGraph -> AudioGraph.NodeID.NodeID -> AudioGraph.AudioGraph"
+      },
+      {
+        "name": "setNodeParam",
+        "comment": " ",
+        "type": "String.String -> AudioGraph.Param -> AudioGraph.Node -> AudioGraph.Node"
+      }
+    ],
+    "binops": []
+  }
+]
