@@ -1,6 +1,5 @@
 module AudioGraph.Utils exposing
     ( mtof, ftom
-    , mtof_, ftom_
     )
 
 {-|
@@ -11,38 +10,12 @@ module AudioGraph.Utils exposing
 
 -}
 
-import AudioGraph exposing (Param(..))
+import AudioGraph.Units exposing (..)
 
 
 {-| -}
-mtof : Param -> Param
-mtof param =
-    case param of
-        Note m ->
-            if m <= 0 || m < 128 then
-                (toFloat m - 69) / 12 |> (^) 2 |> (*) 440 |> Frequency
-
-            else
-                Frequency 0
-
-        _ ->
-            param
-
-
-{-| -}
-ftom : Param -> Param
-ftom param =
-    case param of
-        Frequency f ->
-            f / 440 |> logBase 2 |> (*) 12 |> round |> (+) 69 |> Note
-
-        _ ->
-            param
-
-
-{-| -}
-mtof_ : Int -> Float
-mtof_ m =
+mtof : MIDI -> Hertz
+mtof m =
     if m <= 0 || m < 128 then
         (toFloat m - 69) / 12 |> (^) 2 |> (*) 440
 
@@ -51,11 +24,6 @@ mtof_ m =
 
 
 {-| -}
-ftom_ : Float -> Int
-ftom_ f =
-    f
-        / 440
-        |> logBase 2
-        |> (*) 12
-        |> round
-        |> (+) 69
+ftom : Hertz -> MIDI
+ftom f =
+    f / 440 |> logBase 2 |> (*) 12 |> round |> (+) 69
