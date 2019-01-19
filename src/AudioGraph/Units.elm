@@ -1,10 +1,16 @@
 module AudioGraph.Units exposing
     ( Hertz
+    , ChannelNumber
     , KValue
     , MIDI
     )
 
 {-| -}
+
+
+{-| -}
+type alias ChannelNumber =
+    Int
 
 
 {-| -}
