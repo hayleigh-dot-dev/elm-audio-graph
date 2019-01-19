@@ -1,6 +1,7 @@
 module AudioGraph exposing
     ( AudioGraph(..), emptyAudioGraph
-    , Node(..), NodeType(..), Param(..), Connection
+    , Node(..), NodeType(..), Param(..)
+    , Connection, connectionFrom
     , addNode, getNode, removeNode, addConnection, removeConnection
     , createOscillatorNode, createGainNode, createCustomNode
     , getNodeID, getNodeType, getNodeParam, setNodeParam
@@ -37,7 +38,6 @@ module AudioGraph exposing
 
 import AudioGraph.NodeID as NodeID exposing (NodeID)
 import AudioGraph.Units exposing (..)
-
 import Dict exposing (Dict)
 import Json.Encode
 
@@ -93,8 +93,6 @@ type Node
     = Node
         { id : NodeID
         , nodeType : NodeType
-        , numInputs : Int
-        , numOutputs : Int
         , params : Dict String Param
         }
 
@@ -104,7 +102,7 @@ in types for the most common Web Audio nodes, but the `Custom` type allows
 you to [build your own nodes](#createCustomNode).
 -}
 type NodeType
-    = Output
+    = Destination
     | Oscillator
     | Gain
     | Custom String
@@ -116,18 +114,29 @@ type Param
     | Note MIDI -- MIDI note number
     | Frequency Hertz -- Frequency in Hz
     | Waveform String -- Oscillator waveform. Is be an arbitrary string.
+    | Input ChannelNumber
+    | Output ChannelNumber
 
 
 {-| -}
 type alias Connection =
-    ( NodeID, NodeID, String )
+    ( (NodeID, String), (NodeID, String) )
 
+
+{-| -}
+connectionFrom : NodeID -> String -> NodeID -> String -> Connection
+connectionFrom outputNode outputChannel inputNode inputParam =
+    ( (outputNode, outputChannel), (inputNode, inputParam) )
 
 
 -- GRAPH MANIPULATIONS
 
 
-{-| -}
+{-| Insert a new node into the audio graph. Returns a new audio graph with the
+added node.
+
+Note: This will replace an existing node of the same NodeID.
+-}
 addNode : Node -> AudioGraph -> AudioGraph
 addNode node graph =
     case graph of
@@ -135,33 +144,33 @@ addNode node graph =
             AudioGraph { g | nodes = Dict.insert (NodeID.toString <| getNodeID node) node g.nodes }
 
 
-{-| -}
-getNode : AudioGraph -> NodeID -> Maybe Node
-getNode graph id =
+{-| Look up a node in the audio graph by NodeID. Returns `Just Node` if found or
+`Nothing` if not.
+-}
+getNode : NodeID -> AudioGraph -> Maybe Node
+getNode id graph =
     case graph of
         AudioGraph g ->
             Dict.get (NodeID.toString id) g.nodes
 
 
-{-| -}
-removeNode : AudioGraph -> NodeID -> AudioGraph
-removeNode graph node =
+{-| Remove a node from the audio graph. This is a NoOp if no node with the supplied
+NodeID exists in the graph. Returns a new audio graph with the matching node 
+removed.
+-}
+removeNode : NodeID -> AudioGraph  -> AudioGraph
+removeNode node graph =
     case graph of
         AudioGraph g ->
             AudioGraph { g | nodes = Dict.remove (NodeID.toString node) g.nodes }
 
 
 {-| -}
-addConnection : Maybe Node -> Maybe Node -> String -> AudioGraph -> AudioGraph
-addConnection outputNode inputNode param graph =
+addConnection : Connection -> AudioGraph -> AudioGraph
+addConnection connection graph =
     case graph of
         AudioGraph g ->
-            case ( outputNode, inputNode ) of
-                ( Just (Node o), Just (Node i) ) ->
-                    AudioGraph { g | connections = ( o.id, i.id, param ) :: g.connections }
-
-                _ ->
-                    AudioGraph g
+            AudioGraph { g | connections = connection :: g.connections }
 
 
 {-| -}
@@ -180,11 +189,12 @@ removeConnection connection graph =
 desintationNode : Node
 desintationNode =
     Node
-        { id = NodeID.fromString "_output"
-        , nodeType = Output
-        , numInputs = 2
-        , numOutputs = 0
-        , params = Dict.empty
+        { id = NodeID.fromString "_destination"
+        , nodeType = Destination
+        , params = Dict.fromList
+            [ ( "->0", Input 0 )
+            , ( "->1", Input 1 )
+            ]
         }
 
 
@@ -194,13 +204,12 @@ createOscillatorNode id =
     Node
         { id = id
         , nodeType = Oscillator
-        , numInputs = 0
-        , numOutputs = 1
         , params =
             Dict.fromList
                 [ ( "detune", Value 0.0 )
                 , ( "frequency", Frequency 440.0 )
                 , ( "waveform", Waveform "sine" )
+                , ( "0->", Output 0 )
                 ]
         }
 
@@ -211,11 +220,11 @@ createGainNode id =
     Node
         { id = id
         , nodeType = Gain
-        , numInputs = 0
-        , numOutputs = 1
         , params =
             Dict.fromList
-                [ ( "gain", Value 1.0 )
+                [ ( "->0", Input 0 )
+                , ( "gain", Value 1.0 )
+                , ( "0->", Output 0 )
                 ]
         }
 
@@ -227,25 +236,23 @@ node.
 
 You can then partially apply `createCustomNode` to create your own node generators:
 
-
     createMyAwesomeNode : NodeID -> Node
     createMyAwesomeNode id =
         createCustomNode
-            "MyAwesomeNode"
-            0
-            1
-            (Dict.fromList [ ( "awesomeness", Value 100.0 ) ])
-            id
-
+            "MyAwesomeNode" -- NodeType
+            (Dict.fromList  -- Params
+                [ ( "->0", Input 0 )
+                , ( "awesomeness", Value 100.0 )
+                , ( "0->", Output 0 )
+                ])
+            id -- NodeID
 
 -}
-createCustomNode : String -> Int -> Int -> Dict String Param -> NodeID -> Node
-createCustomNode nodeType inputs outputs params id =
+createCustomNode : String -> Dict String Param -> NodeID -> Node
+createCustomNode nodeType params id =
     Node
         { id = id
         , nodeType = Custom nodeType
-        , numInputs = inputs
-        , numOutputs = outputs
         , params = params
         }
 
@@ -295,3 +302,6 @@ setNodeParam param val node =
 
                 Waveform w ->
                     Node { a | params = Dict.update param (Maybe.map (\_ -> Waveform w)) a.params }
+
+                _ ->
+                    Node a

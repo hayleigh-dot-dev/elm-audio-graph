@@ -24,11 +24,12 @@ encodeAudioGraph graph =
 
 {-| -}
 encodeConnection : AudioGraph.Connection -> Encode.Value
-encodeConnection ( o, i, p ) =
+encodeConnection ((outputNode, outputChannel), (inputNode, inputParam)) =
     Encode.object
-        [ ( "output", Encode.string (NodeID.toString o) )
-        , ( "input", Encode.string <| NodeID.toString i )
-        , ( "param", Encode.string p )
+        [ ( "output", Encode.string <| NodeID.toString outputNode )
+        , ( "outputChannel", Encode.string outputChannel)
+        , ( "input", Encode.string <| NodeID.toString inputNode )
+        , ( "param", Encode.string inputParam )
         ]
 
 
@@ -48,8 +49,8 @@ encodeNode node =
 encodeNodeType : NodeType -> Encode.Value
 encodeNodeType nodeType =
     case nodeType of
-        Output ->
-            Encode.string "Output"
+        Destination ->
+            Encode.string "Destination"
 
         Oscillator ->
             Encode.string "Oscillator"
@@ -76,3 +77,9 @@ encodeParam param =
 
         Waveform s ->
             Encode.string s
+
+        Input i ->
+            Encode.int i
+
+        Output o ->
+            Encode.int o
