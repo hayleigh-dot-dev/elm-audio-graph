@@ -7,7 +7,7 @@ module AudioGraph.Encode exposing (encodeAudioGraph, encodeNode)
 -}
 
 import AudioGraph exposing (..)
-import AudioGraph.Node exposing (..)
+import AudioGraph.Node as Node exposing (..)
 import Json.Encode as Encode
 
 
@@ -26,9 +26,9 @@ encodeAudioGraph graph =
 encodeConnection : AudioGraph.Connection -> Encode.Value
 encodeConnection ((outputNode, outputChannel), (inputNode, inputParam)) =
     Encode.object
-        [ ( "output", Encode.string <| NodeID.toString outputNode )
+        [ ( "output", Encode.string <| Node.idToString outputNode )
         , ( "outputChannel", Encode.string outputChannel)
-        , ( "input", Encode.string <| NodeID.toString inputNode )
+        , ( "input", Encode.string <| Node.idToString inputNode )
         , ( "param", Encode.string inputParam )
         ]
 
@@ -39,14 +39,14 @@ encodeNode node =
     case node of
         Node a ->
             Encode.object
-                [ ( "id", Encode.string <| NodeID.toString a.id )
+                [ ( "id", Encode.string <| Node.idToString a.id )
                 , ( "type", encodeNodeType a.nodeType )
                 , ( "params", Encode.dict identity encodeParam a.params )
                 ]
 
 
 {-| -}
-encodeNodeType : NodeType -> Encode.Value
+encodeNodeType : Node.Type -> Encode.Value
 encodeNodeType nodeType =
     case nodeType of
         Destination ->
@@ -63,7 +63,7 @@ encodeNodeType nodeType =
 
 
 {-| -}
-encodeParam : Param -> Encode.Value
+encodeParam : Node.Param -> Encode.Value
 encodeParam param =
     case param of
         Value v ->

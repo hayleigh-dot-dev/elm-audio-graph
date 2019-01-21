@@ -1,17 +1,36 @@
 module AudioGraph.Node exposing (
         Node (..)
     ,   ID, idFromString, idFromInt, idToString, getID
-    ,   Type, getType
-    ,   Param, getParam, setParam
+    ,   Type (..), getType
+    ,   Param (..), getParam, setParam
     ,   desintationNode, createOscillatorNode, createGainNode, createCustomNode
     )
 
 {-|
 
+# Definition
+
+@docs Node
+
+
+# Types
+
+@docs ID, idFromString, idFromInt, idToString, Type, Param
+
+
+# Node Methods
+
+@docs getID, getType, getParam, setParam
+
+
+# Node Constructors
+
+@docs desintationNode, createOscillatorNode, createGainNode, createCustomNode
+
 -}
 
-import AudioGraph.Units exposing (..)
-import Dict exposing (Dict)
+import AudioGraph.Units exposing ( .. )
+import Dict exposing ( Dict )
 
 {-| `Node` represents a generic audio node.
 -}
@@ -70,9 +89,59 @@ type Param
     | Output ChannelNumber
 
 
+-- NODE METHODS
+
+
+{-| -}
+getID : Node -> ID
+getID node =
+    case node of
+        Node a ->
+            a.id
+
+
+{-| -}
+getType : Node -> Type
+getType node =
+    case node of
+        Node a ->
+            a.nodeType
+
+
+{-| -}
+getParam : String -> Node -> Maybe Param
+getParam param node =
+    case node of
+        Node a ->
+            Dict.get param a.params
+
+
+{-| -}
+setParam : String -> Param -> Node -> Node
+setParam param val node =
+    case node of
+        Node a ->
+            case val of
+                Value v ->
+                    Node { a | params = Dict.update param (Maybe.map (\_ -> Value v)) a.params }
+
+                Note n ->
+                    Node { a | params = Dict.update param (Maybe.map (\_ -> Note n)) a.params }
+
+                Frequency f ->
+                    Node { a | params = Dict.update param (Maybe.map (\_ -> Frequency f)) a.params }
+
+                Waveform w ->
+                    Node { a | params = Dict.update param (Maybe.map (\_ -> Waveform w)) a.params }
+
+                _ ->
+                    Node a
+
+
 -- NODE CONSTRUCTORS
 
 
+{-| -}
 desintationNode : Node
 desintationNode =
     Node
@@ -143,52 +212,3 @@ createCustomNode nodeType params id =
         , params = params
         }
 
-
-
--- NODE METHODS
-
-
-{-| -}
-getID : Node -> ID
-getID node =
-    case node of
-        Node a ->
-            a.id
-
-
-{-| -}
-getType : Node -> Type
-getType node =
-    case node of
-        Node a ->
-            a.nodeType
-
-
-{-| -}
-getParam : String -> Node -> Maybe Param
-getParam param node =
-    case node of
-        Node a ->
-            Dict.get param a.params
-
-
-{-| -}
-setParam : String -> Param -> Node -> Node
-setParam param val node =
-    case node of
-        Node a ->
-            case val of
-                Value v ->
-                    Node { a | params = Dict.update param (Maybe.map (\_ -> Value v)) a.params }
-
-                Note n ->
-                    Node { a | params = Dict.update param (Maybe.map (\_ -> Note n)) a.params }
-
-                Frequency f ->
-                    Node { a | params = Dict.update param (Maybe.map (\_ -> Frequency f)) a.params }
-
-                Waveform w ->
-                    Node { a | params = Dict.update param (Maybe.map (\_ -> Waveform w)) a.params }
-
-                _ ->
-                    Node a
