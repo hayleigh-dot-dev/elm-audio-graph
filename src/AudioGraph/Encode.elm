@@ -6,8 +6,8 @@ module AudioGraph.Encode exposing (encodeAudioGraph, encodeNode)
 
 -}
 
-import AudioGraph exposing (AudioGraph(..), Connection, Node(..), NodeType(..), Param(..))
-import AudioGraph.NodeID as NodeID exposing (NodeID)
+import AudioGraph exposing (..)
+import AudioGraph.Node exposing (..)
 import Json.Encode as Encode
 
 
