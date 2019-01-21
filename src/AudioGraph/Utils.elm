@@ -1,6 +1,4 @@
-module AudioGraph.Utils exposing
-    ( mtof, ftom
-    )
+module AudioGraph.Utils exposing (mtof, ftom)
 
 {-|
 
@@ -8,7 +6,7 @@ module AudioGraph.Utils exposing
 
 -}
 
-import AudioGraph.Units exposing ( .. )
+import AudioGraph.Units exposing (..)
 
 
 {-| -}

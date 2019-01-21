@@ -24,10 +24,10 @@ encodeAudioGraph graph =
 
 {-| -}
 encodeConnection : AudioGraph.Connection -> Encode.Value
-encodeConnection ((outputNode, outputChannel), (inputNode, inputParam)) =
+encodeConnection ( ( outputNode, outputChannel ), ( inputNode, inputParam ) ) =
     Encode.object
         [ ( "output", Encode.string <| Node.idToString outputNode )
-        , ( "outputChannel", Encode.string outputChannel)
+        , ( "outputChannel", Encode.string outputChannel )
         , ( "input", Encode.string <| Node.idToString inputNode )
         , ( "param", Encode.string inputParam )
         ]

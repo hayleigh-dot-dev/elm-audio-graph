@@ -1,6 +1,6 @@
 module AudioGraph.Units exposing
-    ( Hertz
-    , ChannelNumber
+    ( ChannelNumber
+    , Hertz
     , KValue
     , MIDI
     )

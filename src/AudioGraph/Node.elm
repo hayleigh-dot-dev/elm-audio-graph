@@ -1,12 +1,12 @@
-module AudioGraph.Node exposing (
-        Node (..)
-    ,   ID, idFromString, idFromInt, idToString, getID
-    ,   Type (..), getType
-    ,   Param (..), getParam, setParam
-    ,   desintationNode, createOscillatorNode, createGainNode, createCustomNode
+module AudioGraph.Node exposing
+    ( Node(..)
+    , ID, idFromString, idFromInt, idToString, Type(..), Param(..)
+    , getID, getType, getParam, setParam
+    , desintationNode, createOscillatorNode, createGainNode, createCustomNode
     )
 
 {-|
+
 
 # Definition
 
@@ -29,8 +29,9 @@ module AudioGraph.Node exposing (
 
 -}
 
-import AudioGraph.Units exposing ( .. )
-import Dict exposing ( Dict )
+import AudioGraph.Units exposing (..)
+import Dict exposing (Dict)
+
 
 {-| `Node` represents a generic audio node.
 -}
@@ -67,7 +68,6 @@ idToString id =
             s
 
 
-        
 {-| Based on a Nodes params, we can give it a type. This package has built
 in types for the most common Web Audio nodes, but the `Custom` type allows
 you to [build your own nodes](#createCustomNode).
@@ -87,6 +87,7 @@ type Param
     | Waveform String -- Oscillator waveform. Is be an arbitrary string.
     | Input ChannelNumber
     | Output ChannelNumber
+
 
 
 -- NODE METHODS
@@ -138,6 +139,7 @@ setParam param val node =
                     Node a
 
 
+
 -- NODE CONSTRUCTORS
 
 
@@ -147,10 +149,11 @@ desintationNode =
     Node
         { id = idFromString "_destination"
         , nodeType = Destination
-        , params = Dict.fromList
-            [ ( "->0", Input 0 )
-            , ( "->1", Input 1 )
-            ]
+        , params =
+            Dict.fromList
+                [ ( "->0", Input 0 )
+                , ( "->1", Input 1 )
+                ]
         }
 
 
@@ -192,16 +195,22 @@ node.
 
 You can then partially apply `createCustomNode` to create your own node generators:
 
+
     createMyAwesomeNode : ID -> Node
     createMyAwesomeNode id =
         createCustomNode
-            "MyAwesomeNode" -- Type
-            (Dict.fromList  -- Params
+            "MyAwesomeNode"
+            -- Type
+            (Dict.fromList
+                -- Params
                 [ ( "->0", Input 0 )
                 , ( "awesomeness", Value 100.0 )
                 , ( "0->", Output 0 )
-                ])
-            id -- ID
+                ]
+            )
+            id
+
+    -- ID
 
 -}
 createCustomNode : String -> Dict String Param -> ID -> Node
@@ -211,4 +220,3 @@ createCustomNode nodeType params id =
         , nodeType = Custom nodeType
         , params = params
         }
-

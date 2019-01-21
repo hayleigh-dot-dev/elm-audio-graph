@@ -1,8 +1,7 @@
 module AudioGraph exposing
     ( AudioGraph(..), emptyAudioGraph
     , Connection, connectionFrom
-    , addNode, getNode, removeNode
-    , addConnection, removeConnection
+    , addNode, getNode, removeNode, addConnection, removeConnection
     )
 
 {-| Info about the library.
@@ -24,9 +23,9 @@ module AudioGraph exposing
 
 -}
 
-import AudioGraph.Node as Node exposing ( Node (..), desintationNode )
-import AudioGraph.Units exposing ( .. )
-import Dict exposing ( Dict )
+import AudioGraph.Node as Node exposing (Node(..), desintationNode)
+import AudioGraph.Units exposing (..)
+import Dict exposing (Dict)
 import Json.Encode
 
 
@@ -77,13 +76,14 @@ emptyAudioGraph =
 
 {-| -}
 type alias Connection =
-    ( (Node.ID, String), (Node.ID, String) )
+    ( ( Node.ID, String ), ( Node.ID, String ) )
 
 
 {-| -}
 connectionFrom : Node.ID -> String -> Node.ID -> String -> Connection
 connectionFrom outputNode outputChannel inputNode inputParam =
-    ( (outputNode, outputChannel), (inputNode, inputParam) )
+    ( ( outputNode, outputChannel ), ( inputNode, inputParam ) )
+
 
 
 -- GRAPH MANIPULATIONS
@@ -93,6 +93,7 @@ connectionFrom outputNode outputChannel inputNode inputParam =
 added node.
 
 Note: This will replace an existing node of the same Node.ID.
+
 -}
 addNode : Node -> AudioGraph -> AudioGraph
 addNode node graph =
@@ -112,10 +113,10 @@ getNode id graph =
 
 
 {-| Remove a node from the audio graph. This is a NoOp if no node with the supplied
-Node.ID exists in the graph. Returns a new audio graph with the matching node 
+Node.ID exists in the graph. Returns a new audio graph with the matching node
 removed.
 -}
-removeNode : Node.ID -> AudioGraph  -> AudioGraph
+removeNode : Node.ID -> AudioGraph -> AudioGraph
 removeNode node graph =
     case graph of
         AudioGraph g ->
@@ -137,4 +138,3 @@ removeConnection connection graph =
         AudioGraph g ->
             List.filter (\c -> not (c == connection)) g.connections
                 |> (\connections -> AudioGraph { g | connections = connections })
-
