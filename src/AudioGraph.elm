@@ -31,7 +31,7 @@ import Json.Encode
 
 {-| An `AudioGraph` represents the structure of a Web Audio processing
 graph. It is very similar to the Graph Object Model available in the
-[Soundstage][https://github.com/soundio/soundstage] javascript package.
+[Soundstage](https://github.com/soundio/soundstage) javascript package.
 
 A dictionary of [`Node`](#Node)s stores all the currently registered graph
 nodes (more on those later), and a separate list tracks how Nodes are connected
@@ -82,7 +82,8 @@ type alias Connection =
 {-| -}
 connectionFrom : Node.ID -> String -> Node.ID -> String -> Connection
 connectionFrom outputNode outputChannel inputNode inputParam =
-    ( ( outputNode, outputChannel ), ( inputNode, inputParam ) )
+    ( ( outputNode, outputChannel )
+    , ( inputNode, inputParam ) )
 
 
 

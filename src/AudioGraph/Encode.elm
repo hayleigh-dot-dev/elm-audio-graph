@@ -11,7 +11,10 @@ import AudioGraph.Node as Node exposing (..)
 import Json.Encode as Encode
 
 
-{-| -}
+{-| Encodes the supplied AudioGraph as a Json.Encode.Value. This is necessary when you
+want to send the graph through a port and construct the actual Web Audio implementation
+in javascript. See the [advanced example](https://github.com/pd-andy/elm-audio-graph/blob/master/examples/Advanced.elm)
+for more details on how to do this. -}
 encodeAudioGraph : AudioGraph -> Encode.Value
 encodeAudioGraph graph =
     case graph of
@@ -33,7 +36,8 @@ encodeConnection ( ( outputNode, outputChannel ), ( inputNode, inputParam ) ) =
         ]
 
 
-{-| -}
+{-| Encodes the supplied Node as a Json.Encode.Value. Rarely will you need to use
+this directly, but it is exposed for debugging and other fringe cases. -}
 encodeNode : Node -> Encode.Value
 encodeNode node =
     case node of

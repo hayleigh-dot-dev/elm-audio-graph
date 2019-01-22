@@ -40,6 +40,8 @@ type Node
         { id : ID
         , nodeType : Type
         , params : Dict String Param
+        , inputs : Dict ChannelNumber String
+        , outputs : Dict ChannelNumber String
         }
 
 
@@ -143,21 +145,30 @@ setParam param val node =
 -- NODE CONSTRUCTORS
 
 
-{-| -}
+{-| The destination node representss the final destination for all audio in the Web Audio Context.
+This is usually your device's speakers. You won't often need to create a destination node directly,
+as an [emptyAudioGraph](/AudioGraph#emptyAudioGraph) already includes one.
+
+The destination has an [ID](#ID) of `"_destination"`.
+
+-}
 desintationNode : Node
 desintationNode =
     Node
         { id = idFromString "_destination"
         , nodeType = Destination
-        , params =
+        , params = Dict.empty
+        , inputs =
             Dict.fromList
-                [ ( "->0", Input 0 )
-                , ( "->1", Input 1 )
+                [ ( 0, "audioIn_Left" )
+                , ( 1, "audioIn_Right" )
                 ]
+        , outputs = Dict.empty
         }
 
 
-{-| -}
+{-| Creates an oscillator node representing a [Web Audio oscillator](https://developer.mozilla.org/en-US/docs/Web/API/OscillatorNode)
+-}
 createOscillatorNode : ID -> Node
 createOscillatorNode id =
     Node
@@ -168,12 +179,21 @@ createOscillatorNode id =
                 [ ( "detune", Value 0.0 )
                 , ( "frequency", Frequency 440.0 )
                 , ( "waveform", Waveform "sine" )
-                , ( "0->", Output 0 )
+                ]
+        , inputs =
+            Dict.fromList
+                [ ( 0, "frequency" )
+                , ( 1, "detune" )
+                ]
+        , outputs =
+            Dict.fromList
+                [ ( 0, "audioOut" )
                 ]
         }
 
 
-{-| -}
+{-| Creates a gain node representing a [Web Audio gain](https://developer.mozilla.org/en-US/docs/Web/API/GainNode) node.
+-}
 createGainNode : ID -> Node
 createGainNode id =
     Node
@@ -181,9 +201,16 @@ createGainNode id =
         , nodeType = Gain
         , params =
             Dict.fromList
-                [ ( "->0", Input 0 )
-                , ( "gain", Value 1.0 )
-                , ( "0->", Output 0 )
+                [ ( "gain", Value 1.0 )
+                ]
+        , inputs =
+            Dict.fromList
+                [ ( 0, "audioIn" )
+                , ( 1, "gain" )
+                ]
+        , outputs =
+            Dict.fromList
+                [ ( 0, "audioOut" )
                 ]
         }
 
@@ -195,28 +222,33 @@ node.
 
 You can then partially apply `createCustomNode` to create your own node generators:
 
-
     createMyAwesomeNode : ID -> Node
-    createMyAwesomeNode id =
+    createMyAwesomeNode =
         createCustomNode
             "MyAwesomeNode"
-            -- Type
-            (Dict.fromList
-                -- Params
-                [ ( "->0", Input 0 )
-                , ( "awesomeness", Value 100.0 )
-                , ( "0->", Output 0 )
-                ]
-            )
-            id
-
-    -- ID
+            (Dict.fromList 
+                [ ( "awesomeness", Value 100.0 ) 
+                ])
+            (Dict.fromList 
+                [ ( 0, "audioIn" ) 
+                ])
+            (Dict.fromList 
+                [ ( 0, "audioOut" ) 
+                ])
 
 -}
-createCustomNode : String -> Dict String Param -> ID -> Node
-createCustomNode nodeType params id =
+createCustomNode :
+    String
+    -> Dict String Param
+    -> Dict ChannelNumber String
+    -> Dict ChannelNumber String
+    -> ID
+    -> Node
+createCustomNode nodeType params inputs outputs id =
     Node
         { id = id
         , nodeType = Custom nodeType
         , params = params
+        , inputs = inputs
+        , outputs = outputs
         }

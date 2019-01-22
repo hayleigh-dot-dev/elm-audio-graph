@@ -5,7 +5,11 @@ module AudioGraph.Units exposing
     , MIDI
     )
 
-{-| -}
+{-| 
+
+@docs ChannelNumber, Hertz, KValue, MIDI
+
+-}
 
 
 {-| -}
