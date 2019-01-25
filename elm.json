@@ -3,11 +3,12 @@
   "name": "pd-andy/elm-audio-graph",
   "summary": "Construct JSON representations of Web Audio graphs in Elm.",
   "license": "MIT",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "exposed-modules": [
       "AudioGraph",
       "AudioGraph.Encode",
-      "AudioGraph.NodeID",
+      "AudioGraph.Node",
+      "AudioGraph.Units",
       "AudioGraph.Utils"
   ],
   "elm-version": "0.19.0 <= v < 0.20.0",

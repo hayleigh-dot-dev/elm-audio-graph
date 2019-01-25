@@ -6,12 +6,15 @@ module AudioGraph.Encode exposing (encodeAudioGraph, encodeNode)
 
 -}
 
-import AudioGraph exposing (AudioGraph(..), Connection, Node(..), NodeType(..), Param(..))
-import AudioGraph.NodeID as NodeID exposing (NodeID)
+import AudioGraph exposing (..)
+import AudioGraph.Node as Node exposing (..)
 import Json.Encode as Encode
 
 
-{-| -}
+{-| Encodes the supplied AudioGraph as a Json.Encode.Value. This is necessary when you
+want to send the graph through a port and construct the actual Web Audio implementation
+in javascript. See the [advanced example](https://github.com/pd-andy/elm-audio-graph/blob/master/examples/Advanced.elm)
+for more details on how to do this. -}
 encodeAudioGraph : AudioGraph -> Encode.Value
 encodeAudioGraph graph =
     case graph of
@@ -24,29 +27,30 @@ encodeAudioGraph graph =
 
 {-| -}
 encodeConnection : AudioGraph.Connection -> Encode.Value
-encodeConnection ((outputNode, outputChannel), (inputNode, inputParam)) =
+encodeConnection ( ( outputNode, outputChannel ), ( inputNode, inputParam ) ) =
     Encode.object
-        [ ( "output", Encode.string <| NodeID.toString outputNode )
-        , ( "outputChannel", Encode.string outputChannel)
-        , ( "input", Encode.string <| NodeID.toString inputNode )
+        [ ( "output", Encode.string <| Node.idToString outputNode )
+        , ( "outputChannel", Encode.string outputChannel )
+        , ( "input", Encode.string <| Node.idToString inputNode )
         , ( "param", Encode.string inputParam )
         ]
 
 
-{-| -}
+{-| Encodes the supplied Node as a Json.Encode.Value. Rarely will you need to use
+this directly, but it is exposed for debugging and other fringe cases. -}
 encodeNode : Node -> Encode.Value
 encodeNode node =
     case node of
         Node a ->
             Encode.object
-                [ ( "id", Encode.string <| NodeID.toString a.id )
+                [ ( "id", Encode.string <| Node.idToString a.id )
                 , ( "type", encodeNodeType a.nodeType )
                 , ( "params", Encode.dict identity encodeParam a.params )
                 ]
 
 
 {-| -}
-encodeNodeType : NodeType -> Encode.Value
+encodeNodeType : Node.Type -> Encode.Value
 encodeNodeType nodeType =
     case nodeType of
         Destination ->
@@ -63,7 +67,7 @@ encodeNodeType nodeType =
 
 
 {-| -}
-encodeParam : Param -> Encode.Value
+encodeParam : Node.Param -> Encode.Value
 encodeParam param =
     case param of
         Value v ->
