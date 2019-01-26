@@ -3,6 +3,7 @@ module AudioGraph.Node exposing
     , ID, idFromString, idFromInt, idToString, Type(..), Param(..)
     , getID, getType, getParam, setParam
     , desintationNode, createOscillatorNode, createGainNode, createCustomNode
+    , getInputFromLabel, getOutputFromLabel
     )
 
 {-|
@@ -40,8 +41,8 @@ type Node
         { id : ID
         , nodeType : Type
         , params : Dict String Param
-        , inputs : Dict ChannelNumber String
-        , outputs : Dict ChannelNumber String
+        , inputs : Dict String ChannelNumber
+        , outputs : Dict String ChannelNumber
         }
 
 
@@ -87,8 +88,6 @@ type Param
     | Note MIDI -- MIDI note number
     | Frequency Hertz -- Frequency in Hz
     | Waveform String -- Oscillator waveform. Is be an arbitrary string.
-    | Input ChannelNumber
-    | Output ChannelNumber
 
 
 
@@ -137,8 +136,31 @@ setParam param val node =
                 Waveform w ->
                     Node { a | params = Dict.update param (Maybe.map (\_ -> Waveform w)) a.params }
 
-                _ ->
-                    Node a
+
+{-| -}
+getInputFromLabel : String -> Node -> ChannelNumber
+getInputFromLabel label node =
+    case node of
+        Node a ->
+            case Dict.get label a.inputs of
+                Just n ->
+                    n
+
+                Nothing ->
+                    -1
+
+
+{-| -}
+getOutputFromLabel : String -> Node -> ChannelNumber
+getOutputFromLabel label node =
+    case node of
+        Node a ->
+            case Dict.get label a.outputs of
+                Just n ->
+                    n
+
+                Nothing ->
+                    -1
 
 
 
@@ -160,8 +182,8 @@ desintationNode =
         , params = Dict.empty
         , inputs =
             Dict.fromList
-                [ ( 0, "audioIn_Left" )
-                , ( 1, "audioIn_Right" )
+                [ ( "audioIn_Left", 0 )
+                , ( "audioIn_Right", 1 )
                 ]
         , outputs = Dict.empty
         }
@@ -182,12 +204,12 @@ createOscillatorNode id =
                 ]
         , inputs =
             Dict.fromList
-                [ ( 0, "frequency" )
-                , ( 1, "detune" )
+                [ ( "frequency", 0 )
+                , ( "detune", 1 )
                 ]
         , outputs =
             Dict.fromList
-                [ ( 0, "audioOut" )
+                [ ( "audioOut", 0 )
                 ]
         }
 
@@ -205,12 +227,12 @@ createGainNode id =
                 ]
         , inputs =
             Dict.fromList
-                [ ( 0, "audioIn" )
-                , ( 1, "gain" )
+                [ ( "audioIn", 0 )
+                , ( "gain", 1 )
                 ]
         , outputs =
             Dict.fromList
-                [ ( 0, "audioOut" )
+                [ ( "audioOut", 0 )
                 ]
         }
 
@@ -226,22 +248,26 @@ You can then partially apply `createCustomNode` to create your own node generato
     createMyAwesomeNode =
         createCustomNode
             "MyAwesomeNode"
-            (Dict.fromList 
-                [ ( "awesomeness", Value 100.0 ) 
-                ])
-            (Dict.fromList 
-                [ ( 0, "audioIn" ) 
-                ])
-            (Dict.fromList 
-                [ ( 0, "audioOut" ) 
-                ])
+            (Dict.fromList
+                [ ( "awesomeness", Value 100.0 )
+                ]
+            )
+            (Dict.fromList
+                [ ( "audioIn", 0 )
+                , ( "awesomeness", 1 )
+                ]
+            )
+            (Dict.fromList
+                [ ( "audioOut", 0 )
+                ]
+            )
 
 -}
 createCustomNode :
     String
     -> Dict String Param
-    -> Dict ChannelNumber String
-    -> Dict ChannelNumber String
+    -> Dict String ChannelNumber
+    -> Dict String ChannelNumber
     -> ID
     -> Node
 createCustomNode nodeType params inputs outputs id =

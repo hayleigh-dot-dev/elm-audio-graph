@@ -76,14 +76,14 @@ emptyAudioGraph =
 
 {-| -}
 type alias Connection =
-    ( ( Node.ID, String ), ( Node.ID, String ) )
+    ( ( Node.ID, ChannelNumber ), ( Node.ID, ChannelNumber ) )
 
 
 {-| -}
-connectionFrom : Node.ID -> String -> Node.ID -> String -> Connection
-connectionFrom outputNode outputChannel inputNode inputParam =
+connectionFrom : Node.ID -> ChannelNumber -> Node.ID -> ChannelNumber -> Connection
+connectionFrom outputNode outputChannel inputNode inputChannel =
     ( ( outputNode, outputChannel )
-    , ( inputNode, inputParam ) )
+    , ( inputNode, inputChannel ) )
 
 
 

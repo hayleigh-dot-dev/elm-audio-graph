@@ -1,0 +1,64 @@
+{
+  "nodes": {
+    "_destination": {
+      "id": "_destination",
+      "type": "Destination",
+      "params": {},
+      "inputs": [
+        { "channel": 0, "label": "audioIn_Left" },
+        { "channel": 1, "label": "audioIn_Right" }
+      ],
+      "outputs": []
+    },
+    "myGain": {
+      "id": "myGain",
+      "type": "Gain",
+      "params": {
+        "gain": 0.8
+      },
+      "inputs": [
+        { "channel": 0, "label": "audioIn" },
+        { "channel": 1, "label": "gain" }
+      ],
+      "outputs": [
+        { "channel": 0, "label": "audioOut" }
+      ]
+    },
+    "myOsc": {
+      "id": "myOsc",
+      "type": "Oscillator",
+      "params": {
+        "detune": 0,
+        "frequency": 220,
+        "waveform": "square"
+      },
+      "inputs": [
+        { "channel": 1, "label": "detune" },
+        { "channel": 0, "label": "frequency" }
+      ],
+      "outputs": [
+        { "channel": 0, "label": "audioOut" }
+      ]
+    }
+  },
+  "connections": [
+    {
+      "outputNode": "myGain",
+      "outputChannel": 0,
+      "inputNode": "_destination",
+      "inputChannel": 1
+    },
+    {
+      "outputNode": "myGain",
+      "outputChannel": 0,
+      "inputNode": "_destination",
+      "inputChannel": 0
+    },
+    {
+      "outputNode": "myOsc",
+      "outputChannel": 0,
+      "inputNode": "myGain",
+      "inputChannel": 0
+    }
+  ]
+}
