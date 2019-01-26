@@ -1,11 +1,6 @@
-module AudioGraph.Units exposing
-    ( ChannelNumber
-    , Hertz
-    , KValue
-    , MIDI
-    )
+module AudioGraph.Units exposing (ChannelNumber, Hertz, KValue, MIDI)
 
-{-| 
+{-|
 
 @docs ChannelNumber, Hertz, KValue, MIDI
 
