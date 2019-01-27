@@ -1,10 +1,9 @@
 import Browser
 import Html exposing (Html, pre, text)
-import Html.Events exposing (onClick)
 import Json.Encode exposing (encode)
 
 import AudioGraph exposing (..)
-import AudioGraph.NodeID as NodeID exposing (NodeID)
+import AudioGraph.Node exposing (..)
 import AudioGraph.Units exposing (..)
 import AudioGraph.Encode exposing (encodeAudioGraph)
 
@@ -13,21 +12,21 @@ main =
 
 init =
   emptyAudioGraph
-    |> addNode (createOscillatorNode (NodeID.fromString "oscA")
-      |> setNodeParam "frequency" (Frequency 220)
-      |> setNodeParam "detune" (Value 1.5)
-      |> setNodeParam "waveform" (Waveform "square"))
-    |> addNode (createOscillatorNode (NodeID.fromString "oscB")
-      |> setNodeParam "frequency" (Frequency 440)
-      |> setNodeParam "waveform" (Waveform "sine"))
-    |> addNode (createGainNode (NodeID.fromString "gain")
-      |> setNodeParam "gain" (Value 0.5))
+    |> addNode (createOscillatorNode (idFromString "oscA")
+      |> setParam "frequency" (Frequency 220)
+      |> setParam "detune" (Value 1.5)
+      |> setParam "waveform" (Waveform "square"))
+    |> addNode (createOscillatorNode (idFromString "oscB")
+      |> setParam "frequency" (Frequency 440)
+      |> setParam "waveform" (Waveform "sine"))
+    |> addNode (createGainNode (idFromString "gain")
+      |> setParam "gain" (Value 0.5))
     |> addConnection 
-      (connectionFrom (NodeID.fromString "oscA") "0->" (NodeID.fromString "oscB") "frequency")
+      (connectionFrom (idFromString "oscA") 0 (idFromString "oscB") 0)
     |> addConnection
-      (connectionFrom (NodeID.fromString "oscB") "0->" (NodeID.fromString "_destination") "->0")
+      (connectionFrom (idFromString "oscB") 0 (idFromString "_destination") 0)
     |> addConnection
-      (connectionFrom (NodeID.fromString "oscB") "0->" (NodeID.fromString "_destination") "->1")
+      (connectionFrom (idFromString "oscB") 0 (idFromString "_destination") 1)
 
 type Msg = Reset
 
