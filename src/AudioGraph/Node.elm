@@ -21,7 +21,7 @@ module AudioGraph.Node exposing
 
 # Node Methods
 
-@docs getID, getType, getParam, setParam
+@docs getID, getType, getParam, setParam, getInputFromLabel, getOutputFromLabel
 
 
 # Node Constructors
@@ -34,7 +34,7 @@ import AudioGraph.Units exposing (..)
 import Dict exposing (Dict)
 
 
-{-| `Node` represents a generic audio node.
+{-| Node represents a generic audio node. 
 -}
 type Node
     = Node
@@ -46,24 +46,32 @@ type Node
         }
 
 
-{-| -}
+{-| A NodeID is used to ensure each node in the graph is unique. This is necessary
+if you're tracking changes to the graph in javascript when constructing and updating
+an actual Web Audio graph.
+
+This package does not provide a means of generating NodeIDs, you are free to use
+other packages and convert the results to a NodeID with the `idFromString` and
+`idFromInt` methods. You may also simply use human readable NodeIDs such as `myOsc`.
+-}
 type ID
     = ID String
 
 
-{-| -}
+{-| Takes a raw string and returns a NodeID. -}
 idFromString : String -> ID
 idFromString id =
     ID id
 
 
-{-| -}
+{-| Takes any integer and returns a NodeID. -}
 idFromInt : Int -> ID
 idFromInt id =
     ID (String.fromInt id)
 
 
-{-| -}
+{-| Converts a NodeID into a raw string. Used when encoding an audio node, but 
+may also be useful in your own code. -}
 idToString : ID -> String
 idToString id =
     case id of
@@ -71,9 +79,10 @@ idToString id =
             s
 
 
-{-| Based on a Nodes params, we can give it a type. This package has built
-in types for the most common Web Audio nodes, but the `Custom` type allows
-you to [build your own nodes](#createCustomNode).
+{-| In order to construct the real Web Audio graph in javascript, we need to know
+what each node actually is. Custom types are also supported to allow user-defined
+audio nodes to be constructed, or third-party / non-standard Web Audio nodes to 
+be represented.
 -}
 type Type
     = Destination
@@ -82,7 +91,14 @@ type Type
     | Custom String
 
 
-{-| -}
+{-| Node params are typed to restrict their values. This type safety ensures that
+if your elm code compiles then a valid audio graph can be constructed in javascript.
+The values for each Param are simple type aliases that can be found in [AudioGraph.Units](/AudioGraph.Units)
+and exist solely for more expressive type annotations. 
+
+Some utilities for dealing with units can be found in [AudioGraph.Utils](/AudioGraph.Utils).
+Currently only conversion to and from `MIDI` / `Hertz` is available.
+-}
 type Param
     = Value KValue -- Represents any arbitrary control value
     | Note MIDI -- MIDI note number
@@ -137,7 +153,9 @@ setParam param val node =
                     Node { a | params = Dict.update param (Maybe.map (\_ -> Waveform w)) a.params }
 
 
-{-| -}
+{-| Searches a nodes inputs by label and returns the channel number that matches.
+If no match is found, -1 is chosen instead. 
+-}
 getInputFromLabel : String -> Node -> ChannelNumber
 getInputFromLabel label node =
     case node of
@@ -150,7 +168,9 @@ getInputFromLabel label node =
                     -1
 
 
-{-| -}
+{-| Searches a nodes inputs by label and returns the channel number that matches.
+If no match is found, -1 is chosen instead.  
+-}
 getOutputFromLabel : String -> Node -> ChannelNumber
 getOutputFromLabel label node =
     case node of

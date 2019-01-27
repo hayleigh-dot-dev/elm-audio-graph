@@ -1,6 +1,8 @@
 module AudioGraph.Encode exposing (encodeAudioGraph, encodeNode)
 
-{-|
+{-| This module exposes two JSON encoders to encode the audio graph and its nodes.
+You'll typically only need to use `encodeAudioGraph` but `encodeNode` is also exposed
+for testing and other utilities purposes.
 
 @docs encodeAudioGraph, encodeNode
 

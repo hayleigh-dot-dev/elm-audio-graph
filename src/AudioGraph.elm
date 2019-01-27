@@ -74,12 +74,17 @@ emptyAudioGraph =
 -- TYPES
 
 
-{-| -}
+{-| Represents a connection from one audio node to another. Simply a type alias
+for a tuple of tuples. Each inner tuple contains a NodeID and a channel number that
+corresponds either to an output (left tuple) or input (right tuple).
+
+Refer to individual audio nodes for a list of input/output channels. 
+-}
 type alias Connection =
     ( ( Node.ID, ChannelNumber ), ( Node.ID, ChannelNumber ) )
 
 
-{-| -}
+{-| Helper function to create a connection. -}
 connectionFrom : Node.ID -> ChannelNumber -> Node.ID -> ChannelNumber -> Connection
 connectionFrom outputNode outputChannel inputNode inputChannel =
     ( ( outputNode, outputChannel )
@@ -125,7 +130,8 @@ removeNode node graph =
             AudioGraph { g | nodes = Dict.remove (Node.idToString node) g.nodes }
 
 
-{-| -}
+{-| Add a connection to the audio graph. Currently there is no guard against
+duplicate connections, this is planned for the future. -}
 addConnection : Connection -> AudioGraph -> AudioGraph
 addConnection connection graph =
     case graph of
@@ -133,7 +139,7 @@ addConnection connection graph =
             AudioGraph { g | connections = connection :: g.connections }
 
 
-{-| -}
+{-| Remove a connection from the audio graph. -}
 removeConnection : Connection -> AudioGraph -> AudioGraph
 removeConnection connection graph =
     case graph of
