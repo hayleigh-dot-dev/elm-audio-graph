@@ -83,7 +83,8 @@ type alias Connection =
 connectionFrom : Node.ID -> ChannelNumber -> Node.ID -> ChannelNumber -> Connection
 connectionFrom outputNode outputChannel inputNode inputChannel =
     ( ( outputNode, outputChannel )
-    , ( inputNode, inputChannel ) )
+    , ( inputNode, inputChannel )
+    )
 
 
 
